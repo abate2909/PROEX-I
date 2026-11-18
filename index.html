@@ -7,49 +7,49 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="brand-icon" aria-hidden="true">FS</span>
-      <div>
-        <strong>FrotaSegura</strong>
-        <span>Gestão de veículos</span>
-      </div>
+  <header class="cabecalho">
+    <div class="cabecalho-conteudo container">
+      <a class="marca" href="index.html">FrotaSegura</a>
+      <nav class="navegacao" aria-label="Navegação principal">
+        <a class="ativo" href="index.html" aria-current="page">Veículos</a>
+        <a href="registro.html">Registrar uso</a>
+      </nav>
     </div>
-    <nav aria-label="Navegação principal">
-      <a class="active" href="index.html">Veículos</a>
-      <a href="registro.html">Registrar uso</a>
-    </nav>
   </header>
 
   <main class="container">
-    <div class="page-heading">
-      <div>
-        <p class="eyebrow">Painel operacional</p>
-        <h1>Veículos registrados</h1>
-      </div>
+    <nav class="migalhas" aria-label="Você está em">
+      <ol>
+        <li><a href="index.html">Início</a></li>
+        <li aria-current="page">Veículos registrados</li>
+      </ol>
+    </nav>
+
+    <div class="titulo-pagina">
+      <h1>Veículos registrados</h1>
     </div>
 
-    <section class="summary-grid" aria-label="Resumo da frota">
-      <article class="summary-card">
-        <span class="summary-icon blue" aria-hidden="true">🚗</span>
-        <div><span>Total de veículos</span><strong id="totalVeiculos">0</strong></div>
-      </article>
-      <article class="summary-card">
-        <span class="summary-icon orange" aria-hidden="true">●</span>
-        <div><span>Em uso</span><strong id="veiculosEmUso">0</strong></div>
-      </article>
-      <article class="summary-card">
-        <span class="summary-icon green" aria-hidden="true">✓</span>
-        <div><span>Disponíveis</span><strong id="veiculosDisponiveis">0</strong></div>
-      </article>
+    <section class="indicadores" aria-label="Resumo da frota">
+      <div class="indicador">
+        <strong id="totalVeiculos">0</strong>
+        <span>Total de veículos</span>
+      </div>
+      <div class="indicador">
+        <strong id="veiculosEmUso">0</strong>
+        <span>Em uso</span>
+      </div>
+      <div class="indicador">
+        <strong id="veiculosDisponiveis">0</strong>
+        <span>Disponíveis</span>
+      </div>
     </section>
 
-    <section class="toolbar" aria-label="Filtros de veículos">
-      <label class="search-field">
-        <span>Buscar veículo</span>
-        <input id="busca" type="search" placeholder="Placa ou modelo" autocomplete="off">
+    <section class="filtros-veiculos" aria-label="Filtros de veículos">
+      <label class="campo-filtro" for="busca">
+        <span>Buscar por placa ou veículo</span>
+        <input id="busca" type="search" placeholder="Digite placa ou modelo" autocomplete="off">
       </label>
-      <label>
+      <label class="campo-filtro" for="filtroStatus">
         <span>Status</span>
         <select id="filtroStatus">
           <option value="todos">Todos</option>
@@ -57,21 +57,42 @@
           <option value="Em uso">Em uso</option>
         </select>
       </label>
+      <button id="limparFiltros" class="botao botao--secundario" type="button">Limpar filtros</button>
     </section>
 
-    <section id="gradeVeiculos" class="vehicle-grid" aria-live="polite"></section>
+    <div class="tabela-conteudo">
+      <table class="tabela-veiculos" aria-label="Veículos da frota">
+        <thead>
+          <tr>
+            <th scope="col">Foto</th>
+            <th scope="col">Veículo</th>
+            <th scope="col">Placa</th>
+            <th scope="col">Cor</th>
+            <th scope="col">Status</th>
+            <th scope="col">Condutor</th>
+            <th scope="col">Retirada</th>
+            <th scope="col">Ação</th>
+          </tr>
+        </thead>
+        <tbody id="gradeVeiculos" aria-live="polite"></tbody>
+      </table>
+    </div>
   </main>
 
   <div id="modalHistorico" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
-    <div class="modal-backdrop" data-fechar-modal></div>
-    <div class="modal-content">
-      <button class="modal-close" type="button" data-fechar-modal aria-label="Fechar">×</button>
-      <h2 id="modalTitulo">Histórico do veículo</h2>
-      <div id="conteudoHistorico"></div>
-    </div>
+    <div class="modal-fundo" data-fechar-modal></div>
+    <section class="modal-caixa">
+      <header class="modal-cabecalho">
+        <h2 id="modalTitulo">Histórico do veículo</h2>
+        <button id="fecharHistorico" class="botao botao--secundario" type="button" data-fechar-modal>Fechar</button>
+      </header>
+      <div id="conteudoHistorico" class="modal-corpo"></div>
+    </section>
   </div>
 
-  <footer class="site-footer"></footer>
+  <footer class="rodape">
+    <div class="container">Imagens: Wikipédia / Wikimedia Commons</div>
+  </footer>
 
   <script src="js/dados.js"></script>
   <script src="js/imagens.js"></script>

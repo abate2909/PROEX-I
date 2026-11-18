@@ -7,10 +7,12 @@
   const grade = document.getElementById("gradeVeiculos");
   const busca = document.getElementById("busca");
   const filtro = document.getElementById("filtroStatus");
+  const limparFiltros = document.getElementById("limparFiltros");
   const modal = document.getElementById("modalHistorico");
   const conteudoHistorico = document.getElementById("conteudoHistorico");
   let sequenciaRender = 0;
   let sequenciaModal = 0;
+  let acionadorModal = null;
 
   function formatarDataHora(valor) {
     if (!valor) return "Não informado";
@@ -28,7 +30,7 @@
   function mostrarPlaceholder(container, nome) {
     container.classList.remove("image-loading");
     container.removeAttribute("aria-busy");
-    container.innerHTML = `<div class="image-placeholder" role="img" aria-label="Imagem indisponível para ${nome}"><span aria-hidden="true">🚘</span></div>`;
+    container.innerHTML = `<div class="image-placeholder" role="img" aria-label="Imagem indisponível para ${nome}"></div>`;
   }
 
   function aplicarImagem(container, nome, url) {
@@ -52,29 +54,31 @@
 
   function fotoHistorico(url, alt) {
     if (!url || url === "img/placeholder.svg") {
-      return '<div class="history-photo-placeholder" role="img" aria-label="Foto de demonstração indisponível"><span aria-hidden="true">🚘</span></div>';
+      return '<div class="history-photo-placeholder" role="img" aria-label="Foto de demonstração indisponível"></div>';
     }
     return `<img src="${url}" alt="${alt}">`;
   }
 
-  function criarCard(veiculo) {
+  function criarLinha(veiculo) {
     const emUso = veiculo.status === "Em uso";
-    const retirada = emUso ? formatarDataHora(veiculo.retiradaAtual) : "Veículo disponível";
+    const retirada = emUso ? formatarDataHora(veiculo.retiradaAtual) : "—";
     return `
-      <article class="vehicle-card" tabindex="0" role="button" aria-label="Ver histórico de ${veiculo.modelo}, placa ${veiculo.placa}" data-id="${veiculo.id}">
-        <div class="vehicle-image image-loading" data-imagem-veiculo="${veiculo.id}" aria-busy="true"><span class="image-skeleton" aria-hidden="true"></span></div>
-        <div class="vehicle-body">
-          <div class="vehicle-title">
-            <div><h2>${veiculo.modelo}</h2><span class="plate">${veiculo.placa}</span></div>
-            <span class="status ${emUso ? "busy" : "available"}">${veiculo.status}</span>
+      <tr>
+        <td data-label="Foto">
+          <div class="tabela-miniatura image-loading" data-imagem-veiculo="${veiculo.id}" aria-busy="true">
+            <span class="image-skeleton" aria-hidden="true"></span>
           </div>
-          <div class="vehicle-meta">
-            <div>Cor<strong>${veiculo.cor}</strong></div>
-            <div>${emUso ? "Condutor" : "Retirada"}<strong>${emUso ? veiculo.condutorAtual : retirada}</strong></div>
-          </div>
-          ${emUso ? `<div class="vehicle-meta"><div>Horário de retirada<strong>${retirada}</strong></div></div>` : ""}
-        </div>
-      </article>`;
+        </td>
+        <td data-label="Veículo">${veiculo.modelo}</td>
+        <td data-label="Placa"><span class="placa">${veiculo.placa}</span></td>
+        <td data-label="Cor">${veiculo.cor}</td>
+        <td data-label="Status"><span class="status ${emUso ? "status--em-uso" : "status--disponivel"}">${veiculo.status}</span></td>
+        <td data-label="Condutor">${emUso ? veiculo.condutorAtual : "—"}</td>
+        <td data-label="Retirada">${retirada}</td>
+        <td data-label="Ação">
+          <button class="botao botao--secundario" type="button" data-historico-id="${veiculo.id}" aria-label="Ver histórico de ${veiculo.modelo}, placa ${veiculo.placa}">Ver histórico</button>
+        </td>
+      </tr>`;
   }
 
   function renderizar() {
@@ -88,8 +92,8 @@
     });
 
     grade.innerHTML = filtrados.length
-      ? filtrados.map(criarCard).join("")
-      : '<div class="empty-state">Nenhum veículo encontrado.</div>';
+      ? filtrados.map(criarLinha).join("")
+      : '<tr><td class="estado-vazio" colspan="8">Nenhum veículo encontrado para os filtros aplicados.</td></tr>';
 
     Promise.all(filtrados.map(async (veiculo) => ({
       veiculo,
@@ -103,30 +107,40 @@
     });
   }
 
-  function abrirHistorico(veiculo) {
+  function abrirHistorico(veiculo, acionador) {
     const aberturaAtual = ++sequenciaModal;
+    acionadorModal = acionador;
     document.getElementById("modalTitulo").textContent = `${veiculo.modelo} - ${veiculo.placa}`;
     const conteudoVeiculo = `<div class="modal-vehicle-image image-loading" id="fotoModeloHistorico" aria-busy="true"><span class="image-skeleton" aria-hidden="true"></span></div>`;
     if (!veiculo.historico.length) {
-      conteudoHistorico.innerHTML = `${conteudoVeiculo}<p class="empty-state">Este veículo ainda não possui usos registrados.</p>`;
+      conteudoHistorico.innerHTML = `${conteudoVeiculo}<p class="estado-vazio">Este veículo ainda não possui usos registrados.</p>`;
     } else {
       conteudoHistorico.innerHTML = `${conteudoVeiculo}<div class="history-list">${veiculo.historico.map((uso) => `
         <article class="history-item">
           <div class="history-head"><strong>${uso.condutor}</strong><span>Matrícula ${uso.matricula}</span></div>
           <div class="history-details">
-            Retirada: ${formatarDataHora(uso.retirada)} &nbsp; | &nbsp;
-            Devolução: ${formatarDataHora(uso.devolucao)} &nbsp; | &nbsp;
-            KM: ${uso.kmInicial.toLocaleString("pt-BR")} → ${uso.kmFinal.toLocaleString("pt-BR")}
+            <span>Retirada: ${formatarDataHora(uso.retirada)}</span>
+            <span>Devolução: ${formatarDataHora(uso.devolucao)}</span>
+            <span>KM: ${uso.kmInicial.toLocaleString("pt-BR")} → ${uso.kmFinal.toLocaleString("pt-BR")}</span>
           </div>
           ${uso.possivelDano ? '<p class="danger">Possível dano identificado</p>' : ""}
           ${uso.observacoes ? `<p>${uso.observacoes}</p>` : ""}
           <div class="history-photos">
-            <figure><figcaption>Antes</figcaption>${fotoHistorico(uso.fotoAntes, `Foto antes do uso por ${uso.condutor}`)}</figure>
-            <figure><figcaption>Depois</figcaption>${fotoHistorico(uso.fotoDepois, `Foto depois do uso por ${uso.condutor}`)}</figure>
+            <figure>
+              <figcaption>Antes do uso</figcaption>
+              ${fotoHistorico(uso.fotoAntes, `Foto antes do uso por ${uso.condutor}`)}
+              <small class="data-foto">${formatarDataHora(uso.retirada)}</small>
+            </figure>
+            <figure>
+              <figcaption>Depois do uso</figcaption>
+              ${fotoHistorico(uso.fotoDepois, `Foto depois do uso por ${uso.condutor}`)}
+              <small class="data-foto">${formatarDataHora(uso.devolucao)}</small>
+            </figure>
           </div>
         </article>`).join("")}</div>`;
     }
     modal.hidden = false;
+    document.getElementById("fecharHistorico").focus();
     window.FrotaSeguraImagens.buscarImagemCarro(veiculo.modelo).then((url) => {
       if (aberturaAtual !== sequenciaModal) return;
       const container = document.getElementById("fotoModeloHistorico");
@@ -135,26 +149,31 @@
   }
 
   grade.addEventListener("click", (evento) => {
-    const card = evento.target.closest(".vehicle-card");
-    if (!card) return;
-    const veiculo = veiculos.find((item) => item.id === card.dataset.id);
-    if (veiculo) abrirHistorico(veiculo);
+    const botao = evento.target.closest("[data-historico-id]");
+    if (!botao) return;
+    const veiculo = veiculos.find((item) => item.id === botao.dataset.historicoId);
+    if (veiculo) abrirHistorico(veiculo, botao);
   });
 
-  grade.addEventListener("keydown", (evento) => {
-    if (evento.key !== "Enter" && evento.key !== " ") return;
-    const card = evento.target.closest(".vehicle-card");
-    if (card) card.click();
-  });
+  function fecharHistorico() {
+    modal.hidden = true;
+    if (acionadorModal && acionadorModal.isConnected) acionadorModal.focus();
+  }
 
   modal.addEventListener("click", (evento) => {
-    if (evento.target.matches("[data-fechar-modal]")) modal.hidden = true;
+    if (evento.target.matches("[data-fechar-modal]")) fecharHistorico();
   });
   document.addEventListener("keydown", (evento) => {
-    if (evento.key === "Escape") modal.hidden = true;
+    if (evento.key === "Escape" && !modal.hidden) fecharHistorico();
   });
   busca.addEventListener("input", renderizar);
   filtro.addEventListener("change", renderizar);
+  limparFiltros.addEventListener("click", () => {
+    busca.value = "";
+    filtro.value = "todos";
+    renderizar();
+    busca.focus();
+  });
 
   atualizarResumo();
   renderizar();

@@ -11,6 +11,8 @@
   const selectRetirada = document.getElementById("veiculoRetirada");
   const selectDevolucao = document.getElementById("veiculoDevolucao");
   const mensagem = document.getElementById("mensagemSucesso");
+  const camposRetirada = ["veiculoRetirada", "nomeCondutor", "matricula", "finalidade", "kmInicial", "fotoAntes"];
+  const camposDevolucao = ["veiculoDevolucao", "kmFinal", "fotoDepois"];
   let etapaAtual = "retirada";
   let sequenciaImagem = 0;
 
@@ -22,9 +24,15 @@
     etapaAtual = etapa;
     document.getElementById("etapaRetirada").hidden = etapa !== "retirada";
     document.getElementById("etapaDevolucao").hidden = etapa !== "devolucao";
-    document.querySelectorAll(".step").forEach((botao) => {
-      botao.classList.toggle("active", botao.dataset.etapa === etapa);
+    document.querySelectorAll(".etapa").forEach((botao) => {
+      const ativo = botao.dataset.etapa === etapa;
+      botao.classList.toggle("ativo", ativo);
+      if (ativo) botao.setAttribute("aria-current", "step");
+      else botao.removeAttribute("aria-current");
     });
+    document.getElementById("indicacaoEtapa").textContent = etapa === "retirada"
+      ? "Etapa 1 de 2 - Retirada"
+      : "Etapa 2 de 2 - Devolução";
     atualizarVeiculoSelecionado();
   }
 
@@ -43,7 +51,7 @@
     const container = document.getElementById("fotoVeiculoSelecionado");
     container.classList.remove("image-loading");
     container.removeAttribute("aria-busy");
-    container.innerHTML = '<div class="image-placeholder" role="img" aria-label="Foto do veículo indisponível"><span aria-hidden="true">🚘</span></div>';
+    container.innerHTML = '<div class="image-placeholder" role="img" aria-label="Foto do veículo indisponível"></div>';
   }
 
   async function atualizarVeiculoSelecionado() {
@@ -92,6 +100,69 @@
     elemento.hidden = false;
   }
 
+  function marcarErroCampo(id, texto) {
+    const campo = document.getElementById(id);
+    if (!campo) return;
+    const idErro = `${id}Erro`;
+    let erroCampo = document.getElementById(idErro);
+    if (!erroCampo) {
+      erroCampo = document.createElement("small");
+      erroCampo.id = idErro;
+      erroCampo.className = "erro-campo";
+      erroCampo.setAttribute("role", "alert");
+      if (campo.type === "file") {
+        const grupo = campo.closest(".campo");
+        grupo.querySelector(".botao-arquivo").classList.add("arquivo-invalido");
+        grupo.append(erroCampo);
+      } else {
+        campo.insertAdjacentElement("afterend", erroCampo);
+      }
+    }
+    erroCampo.textContent = texto;
+    campo.setAttribute("aria-invalid", "true");
+    const descricoes = new Set((campo.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean));
+    descricoes.add(idErro);
+    campo.setAttribute("aria-describedby", Array.from(descricoes).join(" "));
+  }
+
+  function limparErroCampo(id) {
+    const campo = document.getElementById(id);
+    if (!campo) return;
+    campo.removeAttribute("aria-invalid");
+    const idErro = `${id}Erro`;
+    document.getElementById(idErro)?.remove();
+    if (campo.type === "file") {
+      campo.closest(".campo").querySelector(".botao-arquivo").classList.remove("arquivo-invalido");
+    }
+    const descricoes = (campo.getAttribute("aria-describedby") || "")
+      .split(/\s+/)
+      .filter((descricao) => descricao && descricao !== idErro);
+    if (descricoes.length) campo.setAttribute("aria-describedby", descricoes.join(" "));
+    else campo.removeAttribute("aria-describedby");
+  }
+
+  function limparErrosCampos(ids) {
+    ids.forEach(limparErroCampo);
+  }
+
+  function limparFotoSelecionada(idCampo, idPrevia, antes) {
+    if (antes) fotoAntesBase64 = "";
+    else fotoDepoisBase64 = "";
+    document.getElementById(idCampo).value = "";
+    const previa = document.getElementById(idPrevia);
+    previa.removeAttribute("src");
+    previa.hidden = true;
+    limparErroCampo(idCampo);
+  }
+
+  function acompanharCorrecao(id, evento) {
+    const campo = document.getElementById(id);
+    campo.addEventListener(evento, () => {
+      limparErroCampo(id);
+      limparErro(document.getElementById(camposRetirada.includes(id) ? "erroRetirada" : "erroDevolucao"));
+    });
+  }
+
   function limparErro(elemento) {
     elemento.hidden = true;
     elemento.textContent = "";
@@ -132,12 +203,14 @@
   }
 
   async function processarFoto(input, callback) {
+    limparErroCampo(input.id);
+    limparErro(document.getElementById(camposRetirada.includes(input.id) ? "erroRetirada" : "erroDevolucao"));
     try {
       const base64 = await redimensionarImagem(input.files[0]);
       callback(base64);
     } catch (erro) {
       callback("");
-      alert(erro.message);
+      marcarErroCampo(input.id, erro.message);
     }
   }
 
@@ -156,26 +229,46 @@
       const preview = document.getElementById("previewDepois");
       preview.src = base64;
       preview.hidden = !base64;
-      if (base64) document.getElementById("comparacaoFotos").hidden = false;
+      if (base64) {
+        document.getElementById("comparacaoFotos").hidden = false;
+        document.getElementById("dataFotoDepois").textContent = `Enviada em ${formatarDataHora(new Date().toISOString())}`;
+      }
     });
   });
-  selectRetirada.addEventListener("change", atualizarVeiculoSelecionado);
+  selectRetirada.addEventListener("change", () => {
+    limparFotoSelecionada("fotoAntes", "previewAntes", true);
+    atualizarVeiculoSelecionado();
+  });
+  ["veiculoRetirada", "nomeCondutor", "matricula", "finalidade", "kmInicial"].forEach((id) => {
+    acompanharCorrecao(id, id === "veiculoRetirada" ? "change" : "input");
+  });
+  ["veiculoDevolucao", "kmFinal"].forEach((id) => {
+    acompanharCorrecao(id, id === "veiculoDevolucao" ? "change" : "input");
+  });
 
   formRetirada.addEventListener("submit", (evento) => {
     evento.preventDefault();
     const erro = document.getElementById("erroRetirada");
     limparErro(erro);
+    limparErrosCampos(camposRetirada);
     const id = selectRetirada.value;
     const condutor = document.getElementById("nomeCondutor").value.trim();
     const matricula = document.getElementById("matricula").value.trim();
     const finalidade = document.getElementById("finalidade").value.trim();
     const kmInicial = Number(document.getElementById("kmInicial").value);
 
+    if (!id) marcarErroCampo("veiculoRetirada", "Selecione um veículo disponível.");
+    if (!condutor) marcarErroCampo("nomeCondutor", "Informe o nome do condutor.");
+    if (!matricula) marcarErroCampo("matricula", "Informe a matrícula funcional.");
+    if (!finalidade) marcarErroCampo("finalidade", "Informe a finalidade do uso.");
+    if (document.getElementById("kmInicial").value === "") marcarErroCampo("kmInicial", "Informe a quilometragem atual.");
+    if (!fotoAntesBase64) marcarErroCampo("fotoAntes", "Selecione a foto antes do uso.");
     if (!id || !condutor || !matricula || !finalidade || document.getElementById("kmInicial").value === "" || !fotoAntesBase64) {
-      mostrarErro(erro, "Preencha todos os campos obrigatórios e envie a foto antes do uso.");
+      mostrarErro(erro, "Revise os campos indicados antes de confirmar a retirada.");
       return;
     }
     if (kmInicial < 0) {
+      marcarErroCampo("kmInicial", "A quilometragem atual não pode ser negativa.");
       mostrarErro(erro, "A quilometragem atual não pode ser negativa.");
       return;
     }
@@ -202,6 +295,8 @@
   });
 
   selectDevolucao.addEventListener("change", () => {
+    limparFotoSelecionada("fotoDepois", "previewDepois", false);
+    document.getElementById("dataFotoDepois").textContent = "Data e hora da devolução";
     atualizarVeiculoSelecionado();
     const veiculo = veiculos.find((item) => item.id === selectDevolucao.value);
     const info = document.getElementById("infoRetirada");
@@ -214,22 +309,27 @@
     const uso = veiculo.usoAtual;
     info.innerHTML = `<strong>${uso.condutor}</strong> (${uso.matricula}) - ${uso.finalidade}<br>Retirada em ${formatarDataHora(uso.retirada)} | KM inicial: ${uso.kmInicial.toLocaleString("pt-BR")}`;
     info.hidden = false;
+    document.getElementById("dataFotoAntes").textContent = `Retirada em ${formatarDataHora(uso.retirada)}`;
     const placeholderAntes = document.getElementById("placeholderComparacaoAntes");
     const fotoLegada = !uso.fotoAntes || uso.fotoAntes === "img/placeholder.svg";
     fotoAntes.hidden = fotoLegada;
     placeholderAntes.hidden = !fotoLegada;
     if (!fotoLegada) fotoAntes.src = uso.fotoAntes;
-    document.getElementById("comparacaoFotos").hidden = !fotoDepoisBase64;
+    document.getElementById("comparacaoFotos").hidden = false;
   });
 
   formDevolucao.addEventListener("submit", (evento) => {
     evento.preventDefault();
     const erro = document.getElementById("erroDevolucao");
     limparErro(erro);
+    limparErrosCampos(camposDevolucao);
     const id = selectDevolucao.value;
     const kmFinal = Number(document.getElementById("kmFinal").value);
+    if (!id) marcarErroCampo("veiculoDevolucao", "Selecione um veículo em uso.");
+    if (document.getElementById("kmFinal").value === "") marcarErroCampo("kmFinal", "Informe a quilometragem final.");
+    if (!fotoDepoisBase64) marcarErroCampo("fotoDepois", "Selecione a foto depois do uso.");
     if (!id || document.getElementById("kmFinal").value === "" || !fotoDepoisBase64) {
-      mostrarErro(erro, "Selecione o veículo, informe a quilometragem final e envie a foto depois do uso.");
+      mostrarErro(erro, "Revise os campos indicados antes de confirmar a devolução.");
       return;
     }
     const veiculo = veiculos.find((item) => item.id === id);
@@ -238,6 +338,7 @@
       return;
     }
     if (kmFinal < veiculo.usoAtual.kmInicial) {
+      marcarErroCampo("kmFinal", "A quilometragem final não pode ser menor que a inicial.");
       mostrarErro(erro, "A quilometragem final não pode ser menor que a quilometragem inicial.");
       return;
     }
@@ -271,12 +372,17 @@
     fotoDepoisBase64 = "";
     document.getElementById("comparacaoFotos").hidden = true;
     document.getElementById("infoRetirada").hidden = true;
+    document.getElementById("previewDepois").hidden = true;
+    document.getElementById("fotoComparacaoAntes").hidden = true;
+    document.getElementById("placeholderComparacaoAntes").hidden = true;
+    document.getElementById("dataFotoDepois").textContent = "Data e hora da devolução";
+    limparErrosCampos(["veiculoRetirada", "nomeCondutor", "matricula", "finalidade", "kmInicial", "fotoAntes", "veiculoDevolucao", "kmFinal", "fotoDepois"]);
     atualizarSelects();
     atualizarVeiculoSelecionado();
     mostrarSucesso(`Devolução registrada: ${veiculo.modelo} - ${veiculo.placa}.`);
   });
 
-  document.querySelectorAll(".step").forEach((botao) => {
+  document.querySelectorAll(".etapa").forEach((botao) => {
     botao.addEventListener("click", () => mostrarEtapa(botao.dataset.etapa));
   });
 
@@ -286,11 +392,17 @@
     veiculos = dados.carregar();
     fotoAntesBase64 = "";
     fotoDepoisBase64 = "";
+    limparErrosCampos(camposRetirada.concat(camposDevolucao));
+    limparErro(document.getElementById("erroRetirada"));
+    limparErro(document.getElementById("erroDevolucao"));
+    limparFotoSelecionada("fotoAntes", "previewAntes", true);
+    limparFotoSelecionada("fotoDepois", "previewDepois", false);
     formRetirada.reset();
     formDevolucao.reset();
-    document.getElementById("previewAntes").hidden = true;
+    document.getElementById("dataFotoDepois").textContent = "Data e hora da devolução";
     document.getElementById("comparacaoFotos").hidden = true;
     document.getElementById("infoRetirada").hidden = true;
+    document.getElementById("previewAntes").hidden = true;
     atualizarSelects();
     mostrarEtapa("retirada");
     mostrarSucesso("Dados de demonstração restaurados.");

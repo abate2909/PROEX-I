@@ -7,123 +7,165 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="brand-icon" aria-hidden="true">FS</span>
-      <div><strong>FrotaSegura</strong><span>Gestão de veículos</span></div>
+  <header class="cabecalho">
+    <div class="cabecalho-conteudo container">
+      <a class="marca" href="index.html">FrotaSegura</a>
+      <nav class="navegacao" aria-label="Navegação principal">
+        <a href="index.html">Veículos</a>
+        <a class="ativo" href="registro.html" aria-current="page">Registrar uso</a>
+      </nav>
     </div>
-    <nav aria-label="Navegação principal">
-      <a href="index.html">Veículos</a>
-      <a class="active" href="registro.html">Registrar uso</a>
-    </nav>
   </header>
 
-  <main class="container narrow">
-    <div class="page-heading">
-      <div>
-        <p class="eyebrow">Controle de utilização</p>
+  <main class="container">
+    <div class="registro-conteudo">
+      <nav class="migalhas" aria-label="Você está em">
+        <ol>
+          <li><a href="index.html">Início</a></li>
+          <li aria-current="page">Registro de uso</li>
+        </ol>
+      </nav>
+
+      <div class="titulo-pagina titulo-pagina--registro">
         <h1>Registro de uso</h1>
+        <button id="restaurarDados" class="botao botao--secundario" type="button">Restaurar dados de demonstração</button>
       </div>
-      <button id="restaurarDados" class="btn btn-secondary" type="button">Restaurar dados de demonstração</button>
-    </div>
 
-    <div id="mensagemSucesso" class="alert success" role="status" hidden></div>
-    <div class="steps" aria-label="Etapas do registro">
-      <button type="button" class="step active" data-etapa="retirada">
-        <span>1</span><div><strong>Retirada</strong><small>Antes do uso</small></div>
-      </button>
-      <button type="button" class="step" data-etapa="devolucao">
-        <span>2</span><div><strong>Devolução</strong><small>Depois do uso</small></div>
-      </button>
-    </div>
+      <div id="mensagemSucesso" class="mensagem mensagem--sucesso" role="status" hidden></div>
+      <p id="indicacaoEtapa" class="indicacao-etapa">Etapa 1 de 2 - Retirada</p>
+      <nav class="etapas" aria-label="Etapas do registro">
+        <button type="button" class="etapa ativo" data-etapa="retirada" aria-current="step">1. Retirada</button>
+        <button type="button" class="etapa" data-etapa="devolucao">2. Devolução</button>
+      </nav>
 
-    <div class="registration-layout">
-    <div class="registration-main">
-    <section id="etapaRetirada" class="form-card">
-      <h2>Registrar retirada</h2>
-      <form id="formRetirada" novalidate>
-        <div class="form-grid">
-          <label>
-            <span>Veículo disponível *</span>
-            <select id="veiculoRetirada" required></select>
-          </label>
-          <label>
-            <span>Nome do condutor *</span>
-            <input id="nomeCondutor" type="text" required placeholder="Nome completo">
-          </label>
-          <label>
-            <span>Matrícula funcional *</span>
-            <input id="matricula" type="text" required placeholder="Ex.: 123456">
-          </label>
-          <label>
-            <span>Finalidade do uso *</span>
-            <input id="finalidade" type="text" required placeholder="Ex.: vistoria externa">
-          </label>
-          <label>
-            <span>Quilometragem atual *</span>
-            <input id="kmInicial" type="number" min="0" step="1" required placeholder="0">
-          </label>
-          <label>
-            <span>Data e hora</span>
-            <input id="dataRetirada" type="text" readonly>
-          </label>
+      <div class="veiculo-selecionado" aria-live="polite">
+        <div id="fotoVeiculoSelecionado" class="foto-veiculo image-loading" aria-busy="true">
+          <span class="image-skeleton" aria-hidden="true"></span>
         </div>
-        <label class="upload-area">
-          <span>Foto antes do uso *</span>
-          <input id="fotoAntes" type="file" accept="image/*" required>
-        </label>
-        <div class="preview"><img id="previewAntes" alt="Prévia da foto antes do uso" hidden></div>
-        <p id="erroRetirada" class="alert error" role="alert" hidden></p>
-        <button class="btn btn-primary" type="submit">Confirmar retirada</button>
-      </form>
-    </section>
-
-    <section id="etapaDevolucao" class="form-card" hidden>
-      <h2>Registrar devolução</h2>
-      <form id="formDevolucao" novalidate>
-        <div class="form-grid">
-          <label>
-            <span>Veículo em uso *</span>
-            <select id="veiculoDevolucao" required></select>
-          </label>
-          <label>
-            <span>Quilometragem final *</span>
-            <input id="kmFinal" type="number" min="0" step="1" required placeholder="0">
-          </label>
-        </div>
-        <div id="infoRetirada" class="retirada-info" hidden></div>
-        <div class="comparison" id="comparacaoFotos" hidden>
-          <figure><span>Antes</span><img id="fotoComparacaoAntes" alt="Foto do veículo antes do uso" hidden><div id="placeholderComparacaoAntes" class="history-photo-placeholder" role="img" aria-label="Foto anterior indisponível" hidden><span aria-hidden="true">🚘</span></div></figure>
-          <figure><span>Depois</span><img id="previewDepois" alt="Prévia da foto depois do uso"></figure>
-        </div>
-        <label class="upload-area">
-          <span>Foto depois do uso *</span>
-          <input id="fotoDepois" type="file" accept="image/*" required>
-        </label>
-        <label>
-          <span>Observações</span>
-          <textarea id="observacoes" rows="4" placeholder="Descreva avarias ou observações sobre o uso"></textarea>
-        </label>
-        <label class="checkbox-field">
-          <input id="possivelDano" type="checkbox">
-          <span>Possível dano identificado</span>
-        </label>
-        <p id="erroDevolucao" class="alert error" role="alert" hidden></p>
-        <button class="btn btn-primary" type="submit">Confirmar devolução</button>
-      </form>
-    </section>
-    </div>
-    <aside class="selected-vehicle-panel" aria-live="polite">
-      <h2>Veículo selecionado</h2>
-      <div id="fotoVeiculoSelecionado" class="selected-vehicle-image image-loading">
-        <span class="image-skeleton" aria-hidden="true"></span>
+        <p id="dadosVeiculoSelecionado">Selecione um veículo para visualizar a foto.</p>
       </div>
-      <p id="dadosVeiculoSelecionado">Selecione um veículo para visualizar a foto.</p>
-    </aside>
+
+      <section id="etapaRetirada" class="painel-formulario">
+        <h2>Registrar retirada</h2>
+        <form id="formRetirada" novalidate>
+          <fieldset class="grupo-campos">
+            <legend>Dados do condutor</legend>
+            <div class="grade-campos">
+              <div class="campo">
+                <label for="nomeCondutor">Nome do condutor <span aria-hidden="true">*</span></label>
+                <input id="nomeCondutor" type="text" required placeholder="Nome completo" aria-describedby="ajudaNome">
+                <small id="ajudaNome" class="ajuda-campo">Informe o nome completo de quem conduzirá o veículo.</small>
+              </div>
+              <div class="campo">
+                <label for="matricula">Matrícula funcional <span aria-hidden="true">*</span></label>
+                <input id="matricula" type="text" required placeholder="Ex.: 123456" aria-describedby="ajudaMatricula">
+                <small id="ajudaMatricula" class="ajuda-campo">Use uma matrícula fictícia para a demonstração.</small>
+              </div>
+              <div class="campo campo--largura-total">
+                <label for="finalidade">Finalidade do uso <span aria-hidden="true">*</span></label>
+                <input id="finalidade" type="text" required placeholder="Ex.: vistoria externa">
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="grupo-campos">
+            <legend>Dados do veículo</legend>
+            <div class="grade-campos">
+              <div class="campo campo--largura-total">
+                <label for="veiculoRetirada">Veículo disponível <span aria-hidden="true">*</span></label>
+                <select id="veiculoRetirada" required></select>
+              </div>
+              <div class="campo">
+                <label for="kmInicial">Quilometragem atual <span aria-hidden="true">*</span></label>
+                <input id="kmInicial" type="number" min="0" step="1" required placeholder="0">
+              </div>
+              <div class="campo">
+                <label for="dataRetirada">Data e hora da retirada</label>
+                <input id="dataRetirada" type="text" readonly>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="grupo-campos">
+            <legend>Foto do veículo</legend>
+            <div class="campo">
+              <span class="rotulo-campo">Foto antes do uso <span aria-hidden="true">*</span></span>
+              <div class="upload-controle">
+                <input id="fotoAntes" class="entrada-arquivo" type="file" accept="image/*" required aria-describedby="ajudaFotoAntes">
+                <label class="botao botao--secundario botao-arquivo" for="fotoAntes">Selecionar foto</label>
+                <div class="previa-foto"><img id="previewAntes" alt="Prévia da foto antes do uso" hidden></div>
+              </div>
+              <small id="ajudaFotoAntes" class="ajuda-campo">Envie uma foto do veículo antes de iniciar o uso.</small>
+            </div>
+          </fieldset>
+
+          <p id="erroRetirada" class="mensagem mensagem--erro" role="alert" hidden></p>
+          <button class="botao botao--primario" type="submit">Confirmar retirada</button>
+        </form>
+      </section>
+
+      <section id="etapaDevolucao" class="painel-formulario" hidden>
+        <h2>Registrar devolução</h2>
+        <form id="formDevolucao" novalidate>
+          <fieldset class="grupo-campos">
+            <legend>Dados do veículo</legend>
+            <div class="grade-campos">
+              <div class="campo campo--largura-total">
+                <label for="veiculoDevolucao">Veículo em uso <span aria-hidden="true">*</span></label>
+                <select id="veiculoDevolucao" required></select>
+              </div>
+              <div class="campo">
+                <label for="kmFinal">Quilometragem final <span aria-hidden="true">*</span></label>
+                <input id="kmFinal" type="number" min="0" step="1" required placeholder="0">
+              </div>
+            </div>
+            <div id="infoRetirada" class="informacao-retirada" hidden></div>
+          </fieldset>
+
+          <fieldset class="grupo-campos">
+            <legend>Foto do veículo</legend>
+            <div class="comparacao" id="comparacaoFotos" hidden>
+              <figure>
+                <figcaption>Antes do uso</figcaption>
+                <img id="fotoComparacaoAntes" alt="Foto do veículo antes do uso" hidden>
+                <div id="placeholderComparacaoAntes" class="foto-indisponivel" role="img" aria-label="Foto anterior indisponível" hidden></div>
+                <small id="dataFotoAntes" class="data-foto">Data e hora da retirada</small>
+              </figure>
+              <figure>
+                <figcaption>Depois do uso</figcaption>
+                <img id="previewDepois" alt="Prévia da foto depois do uso" hidden>
+                <div class="campo campo--foto-depois">
+                  <input id="fotoDepois" class="entrada-arquivo" type="file" accept="image/*" required aria-describedby="ajudaFotoDepois">
+                  <label class="botao botao--secundario botao-arquivo" for="fotoDepois">Selecionar foto</label>
+                  <small id="ajudaFotoDepois" class="ajuda-campo">Envie uma foto para registrar a devolução.</small>
+                </div>
+                <small id="dataFotoDepois" class="data-foto">Data e hora da devolução</small>
+              </figure>
+            </div>
+          </fieldset>
+
+          <fieldset class="grupo-campos">
+            <legend>Observações e danos</legend>
+            <div class="campo">
+              <label for="observacoes">Observações</label>
+              <textarea id="observacoes" rows="3" placeholder="Descreva avarias ou observações sobre o uso"></textarea>
+            </div>
+            <label class="campo-checkbox" for="possivelDano">
+              <input id="possivelDano" type="checkbox">
+              <span>Possível dano identificado</span>
+            </label>
+          </fieldset>
+
+          <p id="erroDevolucao" class="mensagem mensagem--erro" role="alert" hidden></p>
+          <button class="botao botao--primario" type="submit">Confirmar devolução</button>
+        </form>
+      </section>
     </div>
   </main>
 
-  <footer class="site-footer">s</footer>
+  <footer class="rodape">
+    <div class="container">Imagens: Wikipédia / Wikimedia Commons</div>
+  </footer>
 
   <script src="js/dados.js"></script>
   <script src="js/imagens.js"></script>
