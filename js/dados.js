@@ -45,7 +45,7 @@
       usoAtual: null, historico: []
     },
     {
-      id: "veiculo-7", modelo: "Ford Ranger", placa: "ZBB6G31", cor: "Preta",
+      id: "veiculo-7", modelo: "Ford Ranger", placa: "ZBB6G31", cor: "Amarela",
       status: "Disponível", condutorAtual: null, retiradaAtual: null, kmAtual: 110230,
       usoAtual: null,
       historico: [
