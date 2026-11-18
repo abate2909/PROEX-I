@@ -5,7 +5,7 @@
 
   const dadosIniciais = [
     {
-      id: "veiculo-1", modelo: "Chevrolet Onix", placa: "SFS3A21", cor: "Prata",
+      id: "veiculo-1", modelo: "Chevrolet Onix", placa: "SFS3A21", cor: "Branca",
       status: "Disponível", condutorAtual: null, retiradaAtual: null, kmAtual: 42860,
       usoAtual: null,
       historico: [
@@ -19,7 +19,7 @@
       historico: []
     },
     {
-      id: "veiculo-3", modelo: "Toyota Corolla", placa: "MNC2C73", cor: "Preta",
+      id: "veiculo-3", modelo: "Toyota Corolla", placa: "MNC2C73", cor: "Cinza escuro",
       status: "Disponível", condutorAtual: null, retiradaAtual: null, kmAtual: 53210,
       usoAtual: null,
       historico: [
@@ -27,12 +27,12 @@
       ]
     },
     {
-      id: "veiculo-4", modelo: "Volkswagen Saveiro", placa: "HQS7D09", cor: "Cinza",
+      id: "veiculo-4", modelo: "Volkswagen Saveiro", placa: "HQS7D09", cor: "Preta",
       status: "Disponível", condutorAtual: null, retiradaAtual: null, kmAtual: 92140,
       usoAtual: null, historico: []
     },
     {
-      id: "veiculo-5", modelo: "Hyundai HB20", placa: "KLP1E56", cor: "Azul",
+      id: "veiculo-5", modelo: "Hyundai HB20", placa: "KLP1E56", cor: "Cinza",
       status: "Em uso", condutorAtual: "Beatriz Alves", retiradaAtual: "2026-11-18T09:05", kmAtual: 37600,
       usoAtual: { condutor: "Beatriz Alves", matricula: "11804", finalidade: "Atendimento externo", kmInicial: 37600, retirada: "2026-11-18T09:05", fotoAntes: "" },
       historico: [
@@ -40,12 +40,12 @@
       ]
     },
     {
-      id: "veiculo-6", modelo: "Renault Duster", placa: "PDA4F82", cor: "Vermelha",
+      id: "veiculo-6", modelo: "Renault Duster", placa: "PDA4F82", cor: "Cinza",
       status: "Disponível", condutorAtual: null, retiradaAtual: null, kmAtual: 58770,
       usoAtual: null, historico: []
     },
     {
-      id: "veiculo-7", modelo: "Ford Ranger", placa: "ZBB6G31", cor: "Amarela",
+      id: "veiculo-7", modelo: "Ford Ranger", placa: "ZBB6G31", cor: "Laranja",
       status: "Disponível", condutorAtual: null, retiradaAtual: null, kmAtual: 110230,
       usoAtual: null,
       historico: [
