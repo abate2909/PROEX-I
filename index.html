@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FrotaSegura - Veículos registrados</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true">FS</span>
+      <div>
+        <strong>FrotaSegura</strong>
+        <span>Gestão de veículos</span>
+      </div>
+    </div>
+    <nav aria-label="Navegação principal">
+      <a class="active" href="index.html">Veículos</a>
+      <a href="registro.html">Registrar uso</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">Painel operacional</p>
+        <h1>Veículos registrados</h1>
+      </div>
+    </div>
+
+    <section class="summary-grid" aria-label="Resumo da frota">
+      <article class="summary-card">
+        <span class="summary-icon blue" aria-hidden="true">🚗</span>
+        <div><span>Total de veículos</span><strong id="totalVeiculos">0</strong></div>
+      </article>
+      <article class="summary-card">
+        <span class="summary-icon orange" aria-hidden="true">●</span>
+        <div><span>Em uso</span><strong id="veiculosEmUso">0</strong></div>
+      </article>
+      <article class="summary-card">
+        <span class="summary-icon green" aria-hidden="true">✓</span>
+        <div><span>Disponíveis</span><strong id="veiculosDisponiveis">0</strong></div>
+      </article>
+    </section>
+
+    <section class="toolbar" aria-label="Filtros de veículos">
+      <label class="search-field">
+        <span>Buscar veículo</span>
+        <input id="busca" type="search" placeholder="Placa ou modelo" autocomplete="off">
+      </label>
+      <label>
+        <span>Status</span>
+        <select id="filtroStatus">
+          <option value="todos">Todos</option>
+          <option value="Disponível">Disponível</option>
+          <option value="Em uso">Em uso</option>
+        </select>
+      </label>
+    </section>
+
+    <section id="gradeVeiculos" class="vehicle-grid" aria-live="polite"></section>
+  </main>
+
+  <div id="modalHistorico" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+    <div class="modal-backdrop" data-fechar-modal></div>
+    <div class="modal-content">
+      <button class="modal-close" type="button" data-fechar-modal aria-label="Fechar">×</button>
+      <h2 id="modalTitulo">Histórico do veículo</h2>
+      <div id="conteudoHistorico"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">Imagens: Wikipédia / Wikimedia Commons</footer>
+
+  <script src="js/dados.js"></script>
+  <script src="js/imagens.js"></script>
+  <script src="js/veiculos.js"></script>
+</body>
+</html>
